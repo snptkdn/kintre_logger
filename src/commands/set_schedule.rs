@@ -1,15 +1,15 @@
-use serenity::framework::standard::{macros::command, CommandResult};
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
-#[command]
-#[description = "set training schedule. ex) '/set_schedule WED [Trainig Name]'"]
-async fn set_schedule(ctx: &Context, msg: &Message) -> CommandResult {
-    println!("{}", msg.content);
-    msg.channel_id
-        .say(&ctx.http, format!("{} にゃーん", msg.author.mention()))
-        .await?;
-    // CommandResultはResultを継承している
-    // `Result?` は正常な値の場合，Resultの中身を返し，エラーの場合は即座にreturnする演算子
+struct Data {} // User data, which is stored and accessible in all command invocations
+type Error = Box<dyn std::error::Error + Send + Sync>;
+type Context<'a> = poise::Context<'a, Data, Error>;
+
+/// Displays your or another user's account creation date
+#[poise::command(slash_command, prefix_command)]
+async fn neko(
+    ctx: Context<'_>,
+    #[description = "Selected user"] user: Option<serenity::User>,
+) -> Result<(), Error> {
+    ctx.say(format!("{} にゃーん", ctx.author().mention())).await?;
     Ok(())
 }

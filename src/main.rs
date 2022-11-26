@@ -1,10 +1,9 @@
-use poise::serenity_prelude as serenity;
+mod commands;
+mod poise_data;
+use poise::serenity_prelude::{self as serenity, Mentionable};
 use dotenv::dotenv;
-use std::env;
-
-struct Data {} // User data, which is stored and accessible in all command invocations
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
+use poise_data::{Context, Data, Error};
+use commands::neko::*;
 
 /// Displays your or another user's account creation date
 #[poise::command(slash_command, prefix_command)]
@@ -23,7 +22,7 @@ async fn main() {
     dotenv().ok();
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![age()],
+            commands: vec![age(), neko()],
             ..Default::default()
         })
         .token(std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN"))
@@ -34,6 +33,6 @@ async fn main() {
                 Ok(Data {})
             })
         });
-
+    
     framework.run().await.unwrap();
 }

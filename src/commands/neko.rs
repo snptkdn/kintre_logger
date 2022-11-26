@@ -1,16 +1,13 @@
-use serenity::framework::standard::{macros::command, CommandResult};
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use super::super::poise_data::*;
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
-#[command]
-#[description = "猫のように鳴く"]
-async fn neko(ctx: &Context, msg: &Message) -> CommandResult {
-    // msg.channel_id.say で，channel_id の channel にメッセージを投稿
-    println!("{:?}", &msg);
-    msg.channel_id
-        .say(&ctx.http, format!("{} にゃーん", msg.author.mention()))
-        .await?;
-    // CommandResultはResultを継承している
-    // `Result?` は正常な値の場合，Resultの中身を返し，エラーの場合は即座にreturnする演算子
+
+/// Displays your or another user's account creation date
+#[poise::command(slash_command, prefix_command)]
+pub async fn neko(
+    ctx: Context<'_>,
+    #[description = "Selected user"] user: Option<serenity::User>,
+) -> Result<(), Error> {
+    ctx.say(format!("{} にゃーん", ctx.author().mention())).await?;
     Ok(())
 }
