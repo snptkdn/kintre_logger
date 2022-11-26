@@ -6,6 +6,7 @@ use dotenv::dotenv;
 use poise_data::{Context, Data, Error};
 use commands::neko::*;
 use commands::set_schedule::*;
+use commands::add_weight::*;
 
 /// Displays your or another user's account creation date
 #[poise::command(slash_command, prefix_command)]
@@ -24,7 +25,7 @@ async fn main() {
     dotenv().ok();
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![age(), neko(), set_schedule()],
+            commands: vec![age(), neko(), set_schedule(), add_weight()],
             ..Default::default()
         })
         .token(std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN"))
