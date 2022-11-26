@@ -1,4 +1,5 @@
 use super::super::poise_data::*;
+use super::databases::weight_log::insert_weight;
 use chrono::{Utc, NaiveDate};
 
 /// add weight of day
@@ -16,6 +17,7 @@ pub async fn add_weight(
         };
     
     if let Ok(date) = date {
+        insert_weight(weight, date.to_string()).await;
         ctx.say(format!(
             "set {} in {}!",
             weight,
