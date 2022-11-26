@@ -3,10 +3,9 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 #[command]
-#[description = "猫のように鳴く"]
-async fn neko(ctx: &Context, msg: &Message) -> CommandResult {
-    // msg.channel_id.say で，channel_id の channel にメッセージを投稿
-    println!("{:?}", &msg);
+#[description = "set training schedule. ex) '/set_schedule WED [Trainig Name]'"]
+async fn set_schedule(ctx: &Context, msg: &Message) -> CommandResult {
+    println!("{}", msg.content);
     msg.channel_id
         .say(&ctx.http, format!("{} にゃーん", msg.author.mention()))
         .await?;

@@ -17,6 +17,7 @@ use dotenv::*;
 use std::env;
 
 use commands::neko::*;
+use commands::set_schedule::*;
 
 struct Handler;
 
@@ -33,7 +34,7 @@ impl EventHandler for Handler {
 #[group]
 #[description("汎用コマンド")]
 #[summary("一般")]
-#[commands(neko)]
+#[commands(neko, set_schedule)]
 struct General;
 
 #[help] // Helpコマンド
