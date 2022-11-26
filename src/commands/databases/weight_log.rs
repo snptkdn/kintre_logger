@@ -21,14 +21,14 @@ pub async fn insert_weight(weight: f64, date: String){
     };
 
     if let Err(err)=sqlx::query!("
-        INSERT INTO weight_log(
+        REPLACE INTO weight_log(
             weight,
             date
         )
         VALUES(
             ?,
             ?
-        );
+        )
     ",
     weight,
     date)
