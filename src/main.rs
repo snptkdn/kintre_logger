@@ -73,7 +73,7 @@ async fn main() {
     // コマンド系の設定
     let framework = StandardFramework::new()
         // |c| c はラムダ式
-        .configure(|c| c.prefix("~")) // コマンドプレフィック
+        .configure(|c| c.prefix("/")) // コマンドプレフィック
         .help(&MY_HELP) // ヘルプコマンドを追加
         .group(&GENERAL_GROUP); // general を追加するには,GENERAL_GROUP とグループ名をすべて大文字にする
 
