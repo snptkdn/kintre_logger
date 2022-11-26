@@ -1,95 +1,39 @@
-mod commands;
-use std::{collections::HashSet, usize};
-
-use serenity::async_trait;
-use serenity::framework::standard::{
-    help_commands,
-    macros::{group, help},
-    Args, CommandGroup, CommandResult, HelpOptions,
-};
-use serenity::framework::StandardFramework;
-use serenity::model::{channel::Message, gateway::Ready, id::UserId};
-use serenity::prelude::{Client, Context, EventHandler, GatewayIntents};
-
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
-use dotenv::*;
+use poise::serenity_prelude as serenity;
+use dotenv::dotenv;
 use std::env;
 
-use commands::neko::*;
-use commands::set_schedule::*;
+struct Data {} // User data, which is stored and accessible in all command invocations
+type Error = Box<dyn std::error::Error + Send + Sync>;
+type Context<'a> = poise::Context<'a, Data, Error>;
 
-struct Handler;
-
-#[async_trait]
-impl EventHandler for Handler {
-    async fn ready(&self, _: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
-    }
-    async fn message(&self, context: Context, message: Message) {
-        println!("message send. {:?}", message);
-    }
-}
-
-#[group]
-#[description("汎用コマンド")]
-#[summary("一般")]
-#[commands(neko, set_schedule)]
-struct General;
-
-#[help] // Helpコマンド
-#[individual_command_tip = "これはヘルプコマンド"] // Helpコマンドの説明
-#[strikethrough_commands_tip_in_guild = ""] // 使用できないコマンドについの説明を削除
-async fn my_help(
-    ctx: &Context,
-    msg: &Message,
-    args: Args,
-    help_options: &'static HelpOptions,
-    groups: &[&'static CommandGroup],
-    owners: HashSet<UserId>,
-) -> CommandResult {
-    // _ は使用しない返り値を捨てることを明示している
-    let _ = help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await;
-    // 空のタプルをreturn（仕様）
-    // Rustでは`;`なしの行は値としてreturnすることを表す
-    // return Ok(()); と同義
+/// Displays your or another user's account creation date
+#[poise::command(slash_command, prefix_command)]
+async fn age(
+    ctx: Context<'_>,
+    #[description = "Selected user"] user: Option<serenity::User>,
+) -> Result<(), Error> {
+    let u = user.as_ref().unwrap_or_else(|| ctx.author());
+    let response = format!("{}'s account was created at {}", u.name, u.created_at());
+    ctx.say(response).await?;
     Ok(())
-}
-
-#[derive(Serialize, Deserialize)]
-struct Token {
-    token: String,
-}
-
-fn get_token() -> Result<String> {
-    dotenv().ok();
-
-    Ok(env::var("DISCORD_TOKEN").expect("token isn't set."))
 }
 
 #[tokio::main]
 async fn main() {
-    // Discord Bot Token を設定
-    let token = get_token().expect("Err トークンが見つかりません");
-    // コマンド系の設定
-    let framework = StandardFramework::new()
-        // |c| c はラムダ式
-        .configure(|c| c.prefix("/")) // コマンドプレフィック
-        .help(&MY_HELP) // ヘルプコマンドを追加
-        .group(&GENERAL_GROUP); // general を追加するには,GENERAL_GROUP とグループ名をすべて大文字にする
+    dotenv().ok();
+    let framework = poise::Framework::builder()
+        .options(poise::FrameworkOptions {
+            commands: vec![age()],
+            ..Default::default()
+        })
+        .token(std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN"))
+        .intents(serenity::GatewayIntents::non_privileged())
+        .setup(|ctx, _ready, framework| {
+            Box::pin(async move {
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                Ok(Data {})
+            })
+        });
 
-    // Botのクライアントを作成
-    let intents = GatewayIntents::GUILD_MESSAGES
-        | GatewayIntents::DIRECT_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT;
-    let mut client = Client::builder(&token, intents)
-        .event_handler(Handler) // 取得するイベント
-        .framework(framework) // コマンドを登録
-        .await
-        .expect("Err creating client"); // エラーハンドリング
-
-    // メインループ．Botを起動
-    if let Err(why) = client.start().await {
-        println!("Client error: {:?}", why);
-    }
+    framework.run().await.unwrap();
 }
