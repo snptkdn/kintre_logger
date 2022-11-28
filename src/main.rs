@@ -3,21 +3,21 @@
 #[macro_use] extern crate rocket;
 
 use rocket::response::content::Html;
+use rocket::response::Redirect;
 
 
 #[get("/")]
-fn index() -> Html<&'static str> {
+fn index() -> Redirect {
+    Redirect::to(uri!(page_a))
+}
+
+#[get("/page_a")]
+fn page_a() -> Html<&'static str> {
     let hello = "Hello, world!\n\nこんにちは\n\nSep/16/2020\n";
 
     Html(hello)
 }
 
-#[get("/page_a")]
-fn page_a() -> &'static str {
-    let page_a = "こんにちは";
-
-    page_a
-}
 
 
 #[get("/page_b")]
