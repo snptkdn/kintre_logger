@@ -13,4 +13,5 @@ dotenv = "0.15.0"
 sqlx = { version = "0.5.10", features = [ "mysql", "runtime-async-std-native-tls" ] }
 poise = "0.5.0"
 chrono = "*"
+rocket = "*"
 
